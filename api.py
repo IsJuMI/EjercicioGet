@@ -62,17 +62,63 @@ def compras_usuario_por_id(id: int, id_compra: int):
     }
 
     return compra
-
+#se hizo en clases para usuarios
 @app.get("/usuarios/{id}")
 def usuario_por_id(id:int,sesion:Session=Depends(generador_sesion)):
-    print("Api consultando usuario por id")
+    print("Api consultando usuario por Id")
     return repo.usuario_por_id(sesion, id)
-
+#para consualtar fotos por id usuario
+@app.get("/usuarios/{id}/fotos")
+def fotos_por_id_usr(id:int, sesion:Session=Depends(generador_sesion)):
+    print("Consultando fotos del usuario",id)
+    return repo.fotos_por_id_usuario(sesion,id)
+#se hizo en clases para consultar todos los usuarios
 @app.get("/usuarios")
-def lista_usuarios(*,lote:int=10,pag:int,orden:Optional[str]=None): #parametros de consulta ?lote=10&pag=1
-    print("lote:",lote, " pag:", pag, " orden:", orden)
+def usuarios(sesion:Session=Depends(generador_sesion)):
+    print("Api consultando usuarios")
+    return repo.usuarios(sesion)
+
+#Para compras
+@app.get("/compras/{id}")
+def compra_por_id(id:int,sesion:Session=Depends(generador_sesion)):
+    print("Api consultando compras por ID ")
+    return repo.compra_por_id(sesion, id)
+
+#para consultar todas las compras
+@app.get("/compras")
+def compras(sesion:Session=Depends(generador_sesion)):
+    print("Api consultando todas las compras")
+    return repo.compras(sesion)
+
+#para consultar todas las compras Get'/compras?id_usuario ={id_usu}&precio={p}
+#select * fromm app.compras where id_usuario =id_usur and precio >=p
+def lista_compras(id_usuario:int, precio:float , sesion:Session=Depends(generador_sesion)):
+    print("Api consultando usuario y precio")
+    return repo.devuelve_compras_por_usuario_precio(sesion, id_usuario, precio)
+@app.get("/usuarios/{id}")
+def lista_edad(edad:int, sesion:Session=Depends(generador_sesion)):
+    print("Api filtandro por rango edad")
+    return repo.devuelve_usuarios_edad(sesion,edad)
+
+@app.get("/compras")
+def compras(sesion:Session=Depends(generador_sesion)):
+    print("Api consultando todas las compras")
+    return repo.compras(sesion)
+#para fotos
+@app.get("/fotos/{id}")
+def foto_por_id(id:int,sesion:Session=Depends(generador_sesion)):
+    print("Api consultando fotos por ID ")
+    return repo.foto_por_id(sesion, id)
+#se hizo en clases para consultar todas las compras
+@app.get("/fotos")
+def fotos(sesion:Session=Depends(generador_sesion)):
+    print("Api consultando todas las fotos")
+    return repo.fotos(sesion)
+#@app.get("/usuarios")
+#def lista_usuarios(*,lote:int=10,pag:int,orden:Optional[str]=None): #parametros de consulta ?lote=10&pag=1
+   # print("lote:",lote, " pag:", pag, " orden:", orden)
     #simulamos la consulta
-    return usuarios
+   # return usuarios
 
 @app.post("/usuarios")
 def guardar_usuario(usuario:UsuarioBase, parametro1:str):
@@ -101,17 +147,9 @@ def actualizar_usuario(id:int, usuario:UsuarioBase):
     return usr_act
     
 @app.delete("/usuario/{id}")
-def borrar_usuario(id:int):
-    #simulamos una consulta
-    if id>=0 and id< len(usuarios):
-        usuario = usuarios[id]
-    else:
-        usuario = None
-    
-    if usuario is not None:
-        usuarios.remove(usuario)
-    
-    return {"status_borrado", "ok"}
+def borrar_usuario(id:int, sesion:Session=Depends(generador_sesion)):
+    repo.borra_usuario_por_id(sesion,id)
+    return{"usuario_borrado","ok"}
 
 @app.post("/fotos")
 async def guardar_foto(titulo:str=Form(None), descripcion:str=Form(...), foto:UploadFile=File(...)):
